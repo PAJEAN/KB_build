@@ -1,5 +1,7 @@
 #!/bin/python
 # -*- coding:utf-8 -*-
+from nltk.stem import WordNetLemmatizer
+from nltk import word_tokenize 
 
 
 ###### ###### ###### ###### Documentation ###
@@ -185,8 +187,18 @@ def pos_pattern(entity, pos):
 	pos = pos.strip()
 	
 	return entity, pos
+	
+def lemmatisation(entity):
+	
+	tokens = word_tokenize(entity)
+	stemmer = WordNetLemmatizer()
+	texts = [stemmer.lemmatize(word) for word in tokens]
+	entity = " ".join(texts)
+	return entity
 
 def entities_normalization(entity, pos):
+	
+	entity = lemmatisation(entity)
 	
 	if "with" in entity.split():
 		entity, pos = with_format(entity, pos)
