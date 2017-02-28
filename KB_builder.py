@@ -1,5 +1,6 @@
 #!/bin/python
 # -*- coding:utf-8 -*-
+import re
 from nltk.stem import WordNetLemmatizer
 from nltk import word_tokenize 
 
@@ -79,6 +80,7 @@ def getDirectGeneralForm(grams):
 	grams.pop(0)
 	return " ".join(grams)
 
+# Linguistic & syntactic rules.
 def invertedLocOf(t, pos):
 	n = t
 	n_pos = pos
@@ -99,8 +101,9 @@ def invertedLocOf(t, pos):
 			nsyntagm_pos += pos[i]+" "
 			
 		for i in range(0,ofLoc):
-			nsyntagm += t[i]+" "
-			nsyntagm_pos += pos[i]+" "
+			if not pos[i] in ["DT", "IN"]:
+				nsyntagm += t[i]+" "
+				nsyntagm_pos += pos[i]+" "
 			
 		n = nsyntagm.strip()
 		n_pos = nsyntagm_pos.strip()
@@ -181,10 +184,27 @@ def pos_pattern(entity, pos):
 		else:
 			break
 	
-	entity = " ".join(n_entity)
-	entity = entity.strip()
-	pos = " ".join(n_pos)
-	pos = pos.strip()
+	# The first word have to be a NN (NN, NNS, NNP).
+	ok = 0
+	if len(n_pos) > 0:
+		m = re.compile("NN")
+		f = m.findall(n_pos[(len(n_pos)-1)])
+		if len(f) > 0:
+			ok = 1
+	
+	# We do not consider a number (CD).
+	if "CD" in n_pos:
+		ok = 0
+	
+	if ok == 1:
+		entity = " ".join(n_entity)
+		entity = entity.strip()
+		pos = " ".join(n_pos)
+		pos = pos.strip()
+	else:
+		entity = ""
+		pos = ""
+	
 	
 	return entity, pos
 	
@@ -217,7 +237,7 @@ def entities_normalization(entity, pos):
 ###### ###### ###### ###### Program ###
 ###
 
-#entities_normalization("a highly cultured family of hyderabad", "DT RB JJ NN IN NNP")
+#entities_normalization("the establishment of the mature t cell phenotype", "DT NN IN DT JJ NNP NN NN")
 #quit()
 
 # Construction des syntagmes.
@@ -251,10 +271,11 @@ with open(syntagm_file) as f:
 			
 			print suj+"\t"+obj
 			
-			if len(suj) > 0:
+			# We consider only full relations.
+			if len(suj) > 0 and len(obj) > 0:
 				syntagms.append(suj)
-			if len(obj) > 0:
 				syntagms.append(obj)
+				
 
 
 ordering = {

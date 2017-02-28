@@ -30,7 +30,7 @@ sortie_pos = open(pos_out_f_name, "w")
 ###### ###### ###### ###### Parameters ###
 ###
 normalization = 1
-predicats = ["born", "bear"]
+predicats = ["born", "bear", "play"]
 ###
 
 ###### ###### ###### ###### Functions ###
